@@ -1,0 +1,52 @@
+<mxfile host="Electron" modified="2025-01-18T05:40:45.701Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.21 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="WeLC1kDrJLe9hh4ykuR_" version="22.1.21" type="device">
+  <diagram name="Page-1" id="ukpYRwhSxwZCSge9MJ0l">
+    <mxGraphModel dx="819" dy="518" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ehJ24WMTLJjvOaxehIyL-1" value="Group ( txt )" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="158.99965517241395" y="97.0044827586207" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ehJ24WMTLJjvOaxehIyL-2" value="Neovim&amp;nbsp;" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="365" y="29" width="91.93" height="44.55" as="geometry" />
+        </mxCell>
+        <mxCell id="ehJ24WMTLJjvOaxehIyL-3" value="vs code" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="365" y="91" width="91.93" height="44.55" as="geometry" />
+        </mxCell>
+        <mxCell id="ehJ24WMTLJjvOaxehIyL-4" value="sublime text" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="365" y="152" width="91.93" height="44.55" as="geometry" />
+        </mxCell>
+        <mxCell id="ehJ24WMTLJjvOaxehIyL-5" value="zed" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="365" y="211" width="91.93" height="44.55" as="geometry" />
+        </mxCell>
+        <mxCell id="ehJ24WMTLJjvOaxehIyL-8" value="1. Cursor pos&lt;br&gt;2. Char inserted" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="549" y="43" width="103" height="41" as="geometry" />
+        </mxCell>
+        <mxCell id="ehJ24WMTLJjvOaxehIyL-9" value="1. Server&lt;br&gt;2. Client&lt;br&gt;3. Message passing between editor and Client" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="29" y="277" width="264" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ehJ24WMTLJjvOaxehIyL-10" value="1. Server&lt;br&gt;2. Client Library&lt;br&gt;3. Use the above library" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=#82b366;fillColor=#d5e8d4;" parent="1" vertex="1">
+          <mxGeometry x="371" y="283" width="145" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ehJ24WMTLJjvOaxehIyL-11" value="Server&lt;br&gt;&lt;br&gt;1. TCP&lt;br&gt;2. In Memory Cache (Memcached)" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="29" y="373" width="203" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="YPEj1y5-LHE4ZrHwq_c--1" value="" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="368" y="443" width="99" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="YPEj1y5-LHE4ZrHwq_c--3" value="" style="edgeStyle=none;orthogonalLoop=1;jettySize=auto;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="80" relative="1" as="geometry">
+            <mxPoint x="245.99714285714288" y="470.9957142857142" as="sourcePoint" />
+            <mxPoint x="357" y="471" as="targetPoint" />
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="YPEj1y5-LHE4ZrHwq_c--4" value="Request" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="YPEj1y5-LHE4ZrHwq_c--3">
+          <mxGeometry x="0.3001" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
