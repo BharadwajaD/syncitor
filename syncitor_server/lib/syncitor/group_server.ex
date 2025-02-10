@@ -1,20 +1,34 @@
-# this manages commit and merge stuff and calls inMemstore to put into store
 defmodule Syncitor.GroupServer do
+  @moduledoc """
+  Entry Point of a Group
+  """
   use GenServer
 
-  def start_link(opts) do
-    GenServer.start_link(__MODULE__, :ok, opts)
+  # using this for unit tests...
+  def start_link(args) do
+    GenServer.start_link(__MODULE__, args)
   end
 
-  # need to init file 
-  def init(_opts) do
+  def start_link(args, opts) do
+    GenServer.start_link(__MODULE__, args, opts)
+  end
+
+  @type state :: %{
+    group_name: %{},
+    in_mem_store: pid(),
+    tcp_pool: any(),
+    user_ids: [String.t()]
+  }
+
+  def init(args) do
     {:ok,
-     %{in_mem_store: InMemoryStore.Store.new(), tcp_pool: TcpServer.TcpServer.new(), user_ids: []}}
+      %{
+        group_name: Map.get(args, :group_name),
+        in_mem_store: InMemoryStore.Store.start_link(Map.get(args, :in_memory_store)),
+        tcp_pool: TcpServer.TcpServer.new(),
+        user_ids: []}
+    }
   end
-
-  # think how to handle commits and merges
-  # def handle_cast({:merge, Syncitor.Commit}, in_mem_store) do
-  # end
 
   def handle_call({:join_group, user_id}, _from, state) do
     {:ok, user_ids} = Map.fetch(state, :user_ids)
@@ -27,7 +41,7 @@ defmodule Syncitor.GroupServer do
     {:reply, user_ids, state}
   end
 
-  def handle_cast({:boradcast, commit}, state) do
+  def handle_cast({:broadcast, commit}, state) do
     {:ok, user_ids} = Map.fetch(state, :user_ids)
     {:ok, tcp_pool} = Map.fetch(state, :tcp_pool)
     Enum.map(user_ids, fn uid -> TcpServer.TcpServer.send(tcp_pool, uid, commit) end)
@@ -35,10 +49,14 @@ defmodule Syncitor.GroupServer do
   end
 
   # TODO:
-  def handle_cast({:commit, commit}, state) do
+  # How do you store in InMemoryStore ? 
+  # Logic for handling commit and stuff
+  def handle_cast({:commit, commit}, state) do 
+    #InMemoryStore.Store.get()
+    {:noreply, state}
   end
 
-  def handle_cast({:merge, commit}, state) do
+  def handle_call({:merge, commit}, _from, state) do
   end
 
   @doc """
@@ -55,5 +73,14 @@ defmodule Syncitor.GroupServer do
   def get_all_users(registry_pid, group_id) do
     server_pid = Syncitor.GroupRegistry.get_group_server(registry_pid, group_id)
     GenServer.call(server_pid, {:get_group_users})
+  end
+
+  @doc """
+  Interface function called by client to submit a commit
+  """
+  @spec submit_commit(pid(), String.t(), Syncitor.Commit.t()) :: :ok
+  def submit_commit(registry_pid, group_id, commit) do 
+    server_pid = Syncitor.GroupRegistry.get_group_server(registry_pid, group_id)
+    GenServer.cast(server_pid, {:commit, commit})
   end
 end

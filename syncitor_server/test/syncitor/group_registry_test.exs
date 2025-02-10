@@ -14,5 +14,6 @@ defmodule Syncitor.GroupRegistryTest do
              Syncitor.GroupRegistry.get_group_server(group_registry_pid, "test_group_1")
 
     assert :ok == Syncitor.GroupServer.join_group(group_registry_pid, "test_group_1", "user_id2")
+
   end
 end

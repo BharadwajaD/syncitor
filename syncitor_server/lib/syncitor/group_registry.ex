@@ -9,6 +9,9 @@ defmodule Syncitor.GroupRegistry do
     {:ok, Map.new()}
   end
 
+  @doc """
+  gets group server if exists, else creates new and returns it
+  """
   def handle_call({:get_group_server, group_id}, _from, registry_map) do
     {group_server, registry_map} =
       case Map.fetch(registry_map, group_id) do
@@ -17,7 +20,7 @@ defmodule Syncitor.GroupRegistry do
 
         :error ->
           (fn ->
-             {:ok, group_server} = Syncitor.GroupServer.start_link([])
+             {:ok, group_server} = Syncitor.GroupServer.start_link( %{group_name: group_id}, [])
              registry_map = Map.put(registry_map, group_id, group_server)
              {group_server, registry_map}
            end).()
