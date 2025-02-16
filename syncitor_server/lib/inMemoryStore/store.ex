@@ -7,7 +7,7 @@ defmodule InMemoryStore.Store do
 
   @type t()::pid()
 
-  def start_link(_opts) do
+  def start_link(_opts \\ []) do
     Agent.start_link(fn  -> %{} end, name: __MODULE__)
   end
 

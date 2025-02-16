@@ -3,6 +3,7 @@ defmodule Syncitor.GroupServerTest do
 
   setup do
     args = %{group_name: "test_group"}
+    in_mem_pid = start_supervised!(InMemoryStore.Store)
     group_pid = start_supervised!({Syncitor.GroupServer, args})
     %{group_pid: group_pid}
   end

@@ -3,6 +3,7 @@ defmodule Syncitor.GroupRegistryTest do
 
   setup do
     group_registry_pid = start_supervised!(Syncitor.GroupRegistry)
+    in_mem_pid = start_supervised!(InMemoryStore.Store)
     %{group_registry_pid: group_registry_pid}
   end
 

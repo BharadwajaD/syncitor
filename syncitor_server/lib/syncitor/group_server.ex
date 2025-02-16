@@ -15,16 +15,18 @@ defmodule Syncitor.GroupServer do
 
   @type state :: %{
     group_name: %{},
-    in_mem_store: pid(),
+    # in_mem_store: pid(),
     tcp_pool: any(),
     user_ids: [String.t()]
   }
 
   def init(args) do
+    group_name = Map.get(args, :group_name)
+    :ok = InMemoryStore.Store.put(group_name)
     {:ok,
       %{
-        group_name: Map.get(args, :group_name),
-        in_mem_store: InMemoryStore.Store.start_link(Map.get(args, :in_memory_store)),
+        group_name: group_name,
+        # in_mem_store: InMemoryStore.Store.start_link(),
         tcp_pool: TcpServer.TcpServer.new(),
         user_ids: []}
     }
@@ -48,11 +50,32 @@ defmodule Syncitor.GroupServer do
     {:noreply, state}
   end
 
+  # TODO: more better
+  defp is_valid_timestamp?(curr_commit, head_commit) do
+    %Syncitor.Commit{timestamp: max_timestamp} = head_commit
+    %Syncitor.Commit{timestamp: curr_timestamp} = curr_commit
+    if curr_timestamp < max_timestamp do
+      false
+    else
+      true
+    end
+  end
+
   # TODO:
   # How do you store in InMemoryStore ? 
   # Logic for handling commit and stuff
   def handle_cast({:commit, commit}, state) do 
-    #InMemoryStore.Store.get()
+
+    %{group_name: group_name, user_ids: user_ids, tcp_pool: tcp_pool} = state
+    commits = InMemoryStore.Store.get(group_name)
+    [head | _ ] = commits
+
+    if is_valid_timestamp?(commit, head) do
+      InMemoryStore.Store.put(group_name, commits ++ [commit])
+    end
+
+    # send this to all users
+    Enum.map(user_ids, fn uid -> TcpServer.TcpServer.send(tcp_pool, uid, commit) end)
     {:noreply, state}
   end
 
