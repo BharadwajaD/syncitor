@@ -4,28 +4,37 @@ defmodule Syncitor.GroupServer do
   """
   use GenServer
 
-  # using this for unit tests...
-  def start_link(args) do
-    GenServer.start_link(__MODULE__, args)
+
+  @spec create_group_server(String.t()) :: :ok
+  def create_group_server(group_id) do
+    {:ok, _pid} = DynamicSupervisor.start_child(Syncitor.GroupServerSupervisor, 
+      %{ 
+        id: Syncitor.GroupServer,
+        start: {Syncitor.GroupServer, :start_link, [%{group_id: group_id}]}
+      })
+    :ok
   end
 
-  def start_link(args, opts) do
-    GenServer.start_link(__MODULE__, args, opts)
+  def start_link(args) do
+    group_id = Map.get(args, :group_id)
+    {:ok, group_pid} = GenServer.start_link(__MODULE__, args)
+    # subscribe to registry
+    :ok = GenServer.call(Syncitor.GroupRegistry, {:put_group_server, group_id, group_pid}) 
+    {:ok , group_pid}
   end
 
   @type state :: %{
-    group_name: %{},
+    group_id: %{},
     # in_mem_store: pid(),
     tcp_pool: any(),
     user_ids: [String.t()]
   }
-
   def init(args) do
-    group_name = Map.get(args, :group_name)
-    :ok = InMemoryStore.Store.put(group_name)
-    {:ok,
+    group_id = Map.get(args, :group_id)
+    :ok = InMemoryStore.Store.put(group_id)
+    {:ok, 
       %{
-        group_name: group_name,
+        group_id: group_id,
         # in_mem_store: InMemoryStore.Store.start_link(),
         tcp_pool: TcpServer.TcpServer.new(),
         user_ids: []}
@@ -50,6 +59,7 @@ defmodule Syncitor.GroupServer do
     {:noreply, state}
   end
 
+
   # TODO: more better
   defp is_valid_timestamp?(curr_commit, head_commit) do
     %Syncitor.Commit{timestamp: max_timestamp} = head_commit
@@ -66,12 +76,12 @@ defmodule Syncitor.GroupServer do
   # Logic for handling commit and stuff
   def handle_cast({:commit, commit}, state) do 
 
-    %{group_name: group_name, user_ids: user_ids, tcp_pool: tcp_pool} = state
-    commits = InMemoryStore.Store.get(group_name)
+    %{group_id: group_id, user_ids: user_ids, tcp_pool: tcp_pool} = state
+    commits = InMemoryStore.Store.get(group_id)
     [head | _ ] = commits
 
     if is_valid_timestamp?(commit, head) do
-      InMemoryStore.Store.put(group_name, commits ++ [commit])
+      InMemoryStore.Store.put(group_id, commits ++ [commit])
     end
 
     # send this to all users
@@ -81,6 +91,10 @@ defmodule Syncitor.GroupServer do
 
   def handle_call({:merge, commit}, _from, state) do
   end
+
+  def handle_info({:DOWN, reason, _type, _pid}, state) do
+  end
+
 
   @doc """
   Interface function called by client to add user into a group

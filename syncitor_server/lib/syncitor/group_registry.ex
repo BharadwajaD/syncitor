@@ -1,35 +1,31 @@
 defmodule Syncitor.GroupRegistry do
   use GenServer
 
-  def start_link(opts) do
-    GenServer.start_link(__MODULE__, :ok, opts)
+  def start_link(_opts) do
+    GenServer.start_link(__MODULE__, :ok, name: Syncitor.GroupRegistry)
   end
 
   def init(_opts) do
     {:ok, Map.new()}
   end
 
-  @doc """
-  gets group server if exists, else creates new and returns it
-  """
+
   def handle_call({:get_group_server, group_id}, _from, registry_map) do
-    {group_server, registry_map} =
       case Map.fetch(registry_map, group_id) do
         {:ok, group_server} ->
-          {group_server, registry_map}
+          {:reply, {:ok, group_server}, registry_map}
 
         :error ->
-          (fn ->
-             {:ok, group_server} = Syncitor.GroupServer.start_link( %{group_name: group_id}, [])
-             registry_map = Map.put(registry_map, group_id, group_server)
-             {group_server, registry_map}
-           end).()
+          {:reply, {:error, "group_server not_created/crashed"}, registry_map}
       end
 
-    {:reply, group_server, registry_map}
   end
 
-  # OPTIMIZE: introduce put_group_server if needed
+  def handle_call({:put_group_server, group_id, group_pid}, _from, registry_map) do
+    registry_map = Map.put(registry_map, group_id, group_pid)
+    {:reply, :ok, registry_map}
+  end
+
   def get_group_server(registry_pid, group_id) do
     GenServer.call(registry_pid, {:get_group_server, group_id})
   end

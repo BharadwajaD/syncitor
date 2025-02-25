@@ -1,20 +1,27 @@
 defmodule Syncitor.GroupRegistryTest do
   use ExUnit.Case
 
-  setup do
-    group_registry_pid = start_supervised!(Syncitor.GroupRegistry)
+  setup_all do
+    supervisor_pid = start_supervised!(Syncitor.Supervisor)
     in_mem_pid = start_supervised!(InMemoryStore.Store)
-    %{group_registry_pid: group_registry_pid}
+    %{}
   end
 
-  test "testing group registry stuff", %{group_registry_pid: group_registry_pid} do
-    group_server_1 =
-      Syncitor.GroupRegistry.get_group_server(group_registry_pid, "test_group_1")
+  test "testing group creating in registry" do
 
-    assert group_server_1 ==
-             Syncitor.GroupRegistry.get_group_server(group_registry_pid, "test_group_1")
+    assert :ok == Syncitor.GroupServer.create_group_server("test_group_1")
+    {:ok, gs_pid} = Syncitor.GroupRegistry.get_group_server(Syncitor.GroupRegistry, "test_group_1")
 
-    assert :ok == Syncitor.GroupServer.join_group(group_registry_pid, "test_group_1", "user_id2")
+  end
 
+  test "group registry should not crash even if a group server crashes" do
+
+    assert :ok == Syncitor.GroupServer.create_group_server("test_crash_group")
+    {:ok, gs_pid} = Syncitor.GroupRegistry.get_group_server(Syncitor.GroupRegistry, "test_crash_group")
+    GenServer.stop(gs_pid, :bad_input)
+    :timer.sleep(100) #give some time for the group_server to update its pid in registry
+    {:ok, ngs_pid } = Syncitor.GroupRegistry.get_group_server(Syncitor.GroupRegistry, "test_crash_group")
+
+    assert gs_pid != ngs_pid
   end
 end
