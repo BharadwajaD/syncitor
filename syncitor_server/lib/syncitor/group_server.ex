@@ -26,7 +26,6 @@ defmodule Syncitor.GroupServer do
   @type state :: %{
     group_id: %{},
     # in_mem_store: pid(),
-    tcp_pool: any(),
     user_ids: [String.t()]
   }
   def init(args) do
@@ -36,7 +35,6 @@ defmodule Syncitor.GroupServer do
       %{
         group_id: group_id,
         # in_mem_store: InMemoryStore.Store.start_link(),
-        tcp_pool: TcpServer.TcpServer.new(),
         user_ids: []}
     }
   end
@@ -55,7 +53,8 @@ defmodule Syncitor.GroupServer do
   def handle_cast({:broadcast, commit}, state) do
     {:ok, user_ids} = Map.fetch(state, :user_ids)
     {:ok, tcp_pool} = Map.fetch(state, :tcp_pool)
-    Enum.map(user_ids, fn uid -> TcpServer.TcpServer.send(tcp_pool, uid, commit) end)
+    #Enum.map(user_ids, fn uid -> TcpServer.TcpServer.send(tcp_pool, uid, commit) end)
+    # TODO: complete this
     {:noreply, state}
   end
 
@@ -85,7 +84,7 @@ defmodule Syncitor.GroupServer do
     end
 
     # send this to all users
-    Enum.map(user_ids, fn uid -> TcpServer.TcpServer.send(tcp_pool, uid, commit) end)
+    #Enum.map(user_ids, fn uid -> TcpServer.TcpServer.send(tcp_pool, uid, commit) end)
     {:noreply, state}
   end
 
@@ -99,25 +98,25 @@ defmodule Syncitor.GroupServer do
   @doc """
   Interface function called by client to add user into a group
   """
-  def join_group(registry_pid, group_id, user_id) do
-    server_pid = Syncitor.GroupRegistry.get_group_server(registry_pid, group_id)
+  def join_group(group_id, user_id) do
+    server_pid = Syncitor.GroupRegistry.get_group_server(group_id)
     GenServer.call(server_pid, {:join_group, user_id})
   end
 
   @doc """
   Interface function called by client to gett all users of a group
   """
-  def get_all_users(registry_pid, group_id) do
-    server_pid = Syncitor.GroupRegistry.get_group_server(registry_pid, group_id)
+  def get_all_users(group_id) do
+    server_pid = Syncitor.GroupRegistry.get_group_server(group_id)
     GenServer.call(server_pid, {:get_group_users})
   end
 
   @doc """
   Interface function called by client to submit a commit
   """
-  @spec submit_commit(pid(), String.t(), Syncitor.Commit.t()) :: :ok
-  def submit_commit(registry_pid, group_id, commit) do 
-    server_pid = Syncitor.GroupRegistry.get_group_server(registry_pid, group_id)
+  @spec submit_commit(String.t(), Syncitor.Commit.t()) :: :ok
+  def submit_commit(group_id, commit) do 
+    server_pid = Syncitor.GroupRegistry.get_group_server(group_id)
     GenServer.cast(server_pid, {:commit, commit})
   end
 end

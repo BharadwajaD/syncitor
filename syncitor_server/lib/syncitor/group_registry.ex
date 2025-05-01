@@ -1,8 +1,8 @@
 defmodule Syncitor.GroupRegistry do
   use GenServer
 
-  def start_link(_opts) do
-    GenServer.start_link(__MODULE__, :ok, name: Syncitor.GroupRegistry)
+  def start_link(init_arg) do
+    GenServer.start_link(__MODULE__, init_arg, name: Syncitor.GroupRegistry)
   end
 
   def init(_opts) do
@@ -26,7 +26,7 @@ defmodule Syncitor.GroupRegistry do
     {:reply, :ok, registry_map}
   end
 
-  def get_group_server(registry_pid, group_id) do
-    GenServer.call(registry_pid, {:get_group_server, group_id})
+  def get_group_server(group_id) do
+    GenServer.call(Syncitor.GroupRegistry, {:get_group_server, group_id})
   end
 end
