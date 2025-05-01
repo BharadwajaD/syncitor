@@ -1,8 +1,9 @@
 defmodule Syncitor.Commit do
 
   defstruct [:command, :location, :to_char, :timestamp]
-  @type t :: %__MODULE__{command: String.t(), 
-    location: {integer(), integer()},
+  @type t :: %__MODULE__{
+    command: String.t(), 
+    location: %{row: integer(), col: integer()},
     to_char: [String.t()],
     timestamp: integer()
   }
@@ -18,9 +19,9 @@ defmodule Syncitor.Commit do
     |> Enum.reduce(%{}, fn commit, acc ->  
       %__MODULE__{location: location, command: command} = commit
       acc = Map.put_new(acc, location, [])
-      if command == Syncitor.Constants.replace do
-        delete_commit = %__MODULE__{commit | command: Syncitor.Constants.delete}
-        add_commit = %__MODULE__{commit | command: Syncitor.Constants.add}
+      if command == Utils.Constants.replace do
+        delete_commit = %__MODULE__{commit | command: Utils.Constants.delete}
+        add_commit = %__MODULE__{commit | command: Utils.Constants.add}
         acc = Map.update!(acc, location, fn location_commits -> [ delete_commit | location_commits]  end) 
         Map.update!(acc, location, fn location_commits -> [add_commit | location_commits]  end) 
       else
